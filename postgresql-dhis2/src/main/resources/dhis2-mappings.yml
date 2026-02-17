@@ -1,0 +1,73 @@
+# DHIS2 Column Mapping Configuration
+# This file maps LIM database columns to DHIS2 data elements
+# Following the pattern from OpenMRS DHIS2 Reporting Module
+
+reports:
+  # PCR Test Results Report
+  - id: pcr-test-results
+    name: PCR Test Results from LIM
+    description: Maps LIM PCR test results to DHIS2 data elements
+    dataSet: BfMAe6Itzgt  # DHIS2 Data Set ID
+    
+    # SQL query to extract data (can use {{table}} placeholder)
+    # Uses timestamp-based incremental sync - no dependency on sync_status column
+    # :#lastSyncTimestamp is a named parameter passed from SyncStateService
+    sql: |
+      SELECT 
+        test_date,
+        facility_id,
+        facility_name,
+        test_type,
+        patient_age,
+        patient_gender,
+        test_result,
+        test_count,
+        calculate_period(test_date) as period
+      FROM lims_test_results
+      WHERE test_date > :#lastSyncTimestamp
+      ORDER BY test_date, facility_id
+      LIMIT 1000
+    
+    # Grouping configuration - how to group rows into DataValueSets
+    groupBy:
+      dataSet: BfMAe6Itzgt  # Constant value or column name
+      period: period        # Column name
+      orgUnit: facility_id # Column name (maps to DHIS2 org unit)
+    
+    # Data value mappings - maps columns to DHIS2 data elements
+    # Each mapping creates one dataValue in the DataValueSet
+    dataValueMappings:
+      # Total PCR Tests Performed
+      - name: Total PCR Tests
+        dataElement: Fu5yaroCXiZ  # Replace with actual DHIS2 data element ID for total tests
+        valueColumn: test_count   # Column containing the value
+        categoryOptionCombo: default  # Optional, can be column or constant
+        
+      # Positive PCR Tests
+      - name: Positive PCR Tests
+        dataElement: gJaB7Ne6k7c  # Replace with actual DHIS2 data element ID for positive tests
+        valueColumn: test_count
+        categoryOptionCombo: default
+        # Optional: filter condition (Groovy expression)
+        filter: "test_result == 'positive'"
+        
+      # Negative PCR Tests
+      - name: Negative PCR Tests
+        dataElement: OMYdA6qs2qI  # Replace with actual DHIS2 data element ID for negative tests
+        valueColumn: test_count
+        categoryOptionCombo: default
+        filter: "test_result == 'negative'"
+        
+      # PCR Tests by Gender - Male
+      - name: PCR Tests - Male
+        dataElement: Aytls9Fx4y5  # Replace with actual DHIS2 data element ID
+        valueColumn: test_count
+        categoryOptionCombo: default
+        filter: "patient_gender == 'M' || patient_gender == 'Male'"
+        
+      # PCR Tests by Gender - Female
+      - name: PCR Tests - Female
+        dataElement: Fm6cUmmiY3d  # Replace with actual DHIS2 data element ID
+        valueColumn: test_count
+        categoryOptionCombo: default
+        filter: "patient_gender == 'F' || patient_gender == 'Female'"

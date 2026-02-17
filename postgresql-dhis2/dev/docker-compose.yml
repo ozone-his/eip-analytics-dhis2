@@ -1,0 +1,141 @@
+services:
+  postgresql:
+    container_name: eip-postgresql
+    image: postgres:15-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-analytics}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eip-network
+
+  dhis2:
+    container_name: eip-dhis2
+    image: dhis2/core:2.40.0.1
+    env_file:
+      - .env
+    environment:
+      JAVA_OPTS: -Xms1024m -Xmx2048m
+      POSTGRES_HOST: dhis2-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${DHIS2_DB_NAME:-dhis2}
+      POSTGRES_USER: ${DHIS2_DB_USER:-dhis}
+      POSTGRES_PASSWORD: ${DHIS2_DB_PASSWORD:-dhis}
+      SERVER_HTTPS: "off"
+      SERVER_BASE_URL: http://localhost:${DHIS2_PORT:-8080}
+    ports:
+      - "${DHIS2_PORT:-8080}:8080"
+    depends_on:
+      dhis2-db:
+        condition: service_healthy
+    volumes:
+      - ./data/dhis/dhis.conf:/opt/dhis2/dhis.conf:ro
+      - ./data/dhis:/DHIS2_home
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/system/info"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    networks:
+      - eip-network
+
+  dhis2-db:
+    container_name: eip-dhis2-db
+    image: postgis/postgis:15-3.4
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DHIS2_DB_NAME:-dhis2}
+      POSTGRES_USER: ${DHIS2_DB_USER:-dhis}
+      POSTGRES_PASSWORD: ${DHIS2_DB_PASSWORD:-dhis}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DHIS2_DB_PORT:-5433}:5432"
+    volumes:
+      - dhis2_db_data:/var/lib/postgresql/data
+      - ./init-db-dhis2:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DHIS2_DB_USER:-dhis} -d ${DHIS2_DB_NAME:-dhis2}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eip-network
+
+  artemis:
+    image: apache/activemq-artemis
+    container_name: eip-artemis
+    environment:
+      ARTEMIS_USERNAME: artemis
+      ARTEMIS_PASSWORD: artemis
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+    networks:
+      - eip-network
+
+  eip-client:
+    container_name: eip-client
+    image: mekomsolutions/eip-client
+    env_file:
+      - .env
+    environment:
+      EIP_DHIS2_MAPPING_FILE: ${EIP_DHIS2_MAPPING_FILE:-/eip-client/config/dhis2-mappings.yml}
+      # Disable Spring Boot Actuator HikariCP metrics to avoid version conflicts
+      SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
+      MANAGEMENT_METRICS_ENABLE_JVM: "false"
+      MANAGEMENT_METRICS_ENABLE_HIKARICP: "false"
+      # ActiveMQ Artemis configuration
+      ARTEMIS_BROKER_URL: tcp://artemis:61616
+      ARTEMIS_USERNAME: artemis
+      ARTEMIS_PASSWORD: artemis
+      ARTEMIS_POOL_SIZE: "10"
+    ports:
+      - "${EIP_CLIENT_PORT:-8085}:8080"
+    volumes:
+      - ../target/postgresql-dhis2-${EIP_CLIENT_VERSION:-1.0.0-SNAPSHOT}.jar:/eip-client/routes/postgresql-dhis2-${EIP_CLIENT_VERSION:-1.0.0-SNAPSHOT}.jar:ro
+      - ${DHIS2_MAPPING_FILE_HOST:-./config/dhis2-mappings.yml}:${EIP_DHIS2_MAPPING_FILE:-/eip-client/config/dhis2-mappings.yml}:ro
+      - ${EIP_HOME_DIR_HOST:-eip_home}:/eip-home
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      dhis2:
+        condition: service_healthy
+      artemis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - eip-network
+
+volumes:
+  postgresql_data:
+    driver: local
+  dhis2_db_data:
+    driver: local
+  dhis2_home:
+    driver: local
+  eip_home:
+    driver: local
+
+networks:
+  eip-network:
+    driver: bridge

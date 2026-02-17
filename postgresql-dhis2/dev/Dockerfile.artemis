@@ -1,0 +1,4 @@
+FROM apache/activemq-artemis:2.33.0
+
+# Ensure curl is installed for health checks
+RUN apk --update --no-cache add curl

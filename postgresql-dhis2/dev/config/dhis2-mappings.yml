@@ -1,0 +1,256 @@
+reports:
+  - id: lims-pcr-facility-a
+    name: LIMS PCR test results - Facility A
+    description: Aggregated PCR results for Facility A (set DHIS2 orgUnit UID below)
+    dataSet: BfMAe6Itzgt
+    sql: |
+      SELECT
+        'BfMAe6Itzgt' AS data_set,
+        TO_CHAR(test_date, 'YYYYMM') AS period,
+        SUM(CASE WHEN test_result = 'positive' THEN test_count ELSE 0 END) AS positive_tests,
+        SUM(CASE WHEN test_result = 'negative' THEN test_count ELSE 0 END) AS negative_tests,
+        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'M' THEN test_count ELSE 0 END) AS positive_male,
+        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'F' THEN test_count ELSE 0 END) AS positive_female,
+        SUM(test_count) AS total_tests
+      FROM lims_test_results
+      WHERE test_date > :#lastSyncTimestamp AND facility_id = 'FACILITY_A'
+      GROUP BY TO_CHAR(test_date, 'YYYYMM')
+      ORDER BY period
+
+    groupBy:
+      dataSet: data_set
+      period: period
+      orgUnit: ImspTQPwCqd
+
+    dataValueMappings:
+      - name: Positive tests (total)
+        dataElement: Fu5yaroCXiZ
+        valueColumn: positive_tests
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Negative tests (total)
+        dataElement: gJaB7Ne6k7c
+        valueColumn: negative_tests
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Positive tests (male)
+        dataElement: OMYdA6qs2qI
+        valueColumn: positive_male
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Positive tests (female)
+        dataElement: Aytls9Fx4y5
+        valueColumn: positive_female
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Total tests
+        dataElement: Fm6cUmmiY3d
+        valueColumn: total_tests
+        categoryOptionCombo: HllvX50cXC0
+
+  - id: lims-pcr-facility-b
+    name: LIMS PCR test results - Facility B
+    description: Aggregated PCR results for Facility B (set DHIS2 orgUnit UID below)
+    dataSet: BfMAe6Itzgt
+    sql: |
+      SELECT
+        'BfMAe6Itzgt' AS data_set,
+        TO_CHAR(test_date, 'YYYYMM') AS period,
+        SUM(CASE WHEN test_result = 'positive' THEN test_count ELSE 0 END) AS positive_tests,
+        SUM(CASE WHEN test_result = 'negative' THEN test_count ELSE 0 END) AS negative_tests,
+        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'M' THEN test_count ELSE 0 END) AS positive_male,
+        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'F' THEN test_count ELSE 0 END) AS positive_female,
+        SUM(test_count) AS total_tests
+      FROM lims_test_results
+      WHERE test_date > :#lastSyncTimestamp AND facility_id = 'FACILITY_B'
+      GROUP BY TO_CHAR(test_date, 'YYYYMM')
+      ORDER BY period
+
+    groupBy:
+      dataSet: data_set
+      period: period
+      orgUnit: DiszpKrYNg8
+
+    dataValueMappings:
+      - name: Positive tests (total)
+        dataElement: Fu5yaroCXiZ
+        valueColumn: positive_tests
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Negative tests (total)
+        dataElement: gJaB7Ne6k7c
+        valueColumn: negative_tests
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Positive tests (male)
+        dataElement: OMYdA6qs2qI
+        valueColumn: positive_male
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Positive tests (female)
+        dataElement: Aytls9Fx4y5
+        valueColumn: positive_female
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Total tests
+        dataElement: Fm6cUmmiY3d
+        valueColumn: total_tests
+        categoryOptionCombo: HllvX50cXC0
+
+  - id: hiv-testing-facility-a
+    name: HIV Testing Results - Facility A
+    description: HIV testing indicators aggregated from patient-level events for Facility A
+    dataSet: BfMAe6Itzgt
+    sql: |
+      SELECT
+        'BfMAe6Itzgt' AS data_set,
+        TO_CHAR(event_date, 'YYYYMM') AS period,
+        SUM(CASE WHEN HIV_TEST_M THEN 1 ELSE 0 END) AS tests_performed,
+        SUM(CASE WHEN HIV_TEST_POS_M THEN 1 ELSE 0 END) AS tests_positive,
+        SUM(CASE WHEN HIV_HTS_CLIENTS_TESTED_HIV_Y THEN 1 ELSE 0 END) AS hts_tested,
+        SUM(CASE WHEN HIV_HTS_CLIENT_HIV_POSITIVE_Y THEN 1 ELSE 0 END) AS hts_positive,
+        SUM(CASE WHEN HIV_NEW_CASES_M THEN 1 ELSE 0 END) AS new_cases,
+        SUM(CASE WHEN HIV_NEW_HIV_CASES_STARTED_ART_M THEN 1 ELSE 0 END) AS new_cases_on_art,
+        SUM(CASE WHEN HIV_ART_M THEN 1 ELSE 0 END) AS patients_on_art,
+        SUM(CASE WHEN HIV_VIRSUPP_M THEN 1 ELSE 0 END) AS virally_suppressed,
+        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_Y THEN 1 ELSE 0 END) AS syphilis_tested,
+        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_POSITIVE_Y THEN 1 ELSE 0 END) AS syphilis_positive
+      FROM hiv_patient_events
+      WHERE event_date > :#lastSyncTimestamp AND org_unit = 'ImspTQPwCqd'
+      GROUP BY TO_CHAR(event_date, 'YYYYMM')
+      ORDER BY period
+
+    groupBy:
+      dataSet: data_set
+      period: period
+      orgUnit: ImspTQPwCqd
+
+    dataValueMappings:
+      - name: HIV tests performed
+        dataElement: sX7pWYXIVIi
+        valueColumn: tests_performed
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: HIV tests positive
+        dataElement: O6wdXKIZ5L2
+        valueColumn: tests_positive
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: HTS clients tested for HIV
+        dataElement: dvVQWclej0K
+        valueColumn: hts_tested
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: HTS clients tested HIV positive
+        dataElement: yfXk1lKEOph
+        valueColumn: hts_positive
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: New HIV cases
+        dataElement: TDsHcpQ4E37
+        valueColumn: new_cases
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: New cases started ART
+        dataElement: r9RMOeS9qeH
+        valueColumn: new_cases_on_art
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Patients on ART
+        dataElement: mqIVTKwfWl7
+        valueColumn: patients_on_art
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Virally suppressed
+        dataElement: o8blexx4SAI
+        valueColumn: virally_suppressed
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Syphilis tested
+        dataElement: fJ1O3fG8zpW
+        valueColumn: syphilis_tested
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Syphilis positive
+        dataElement: EYa2F9KAI20
+        valueColumn: syphilis_positive
+        categoryOptionCombo: HllvX50cXC0
+
+  - id: hiv-testing-facility-b
+    name: HIV Testing Results - Facility B
+    description: HIV testing indicators aggregated from patient-level events for Facility B
+    dataSet: BfMAe6Itzgt
+    sql: |
+      SELECT
+        'BfMAe6Itzgt' AS data_set,
+        TO_CHAR(event_date, 'YYYYMM') AS period,
+        SUM(CASE WHEN HIV_TEST_M THEN 1 ELSE 0 END) AS tests_performed,
+        SUM(CASE WHEN HIV_TEST_POS_M THEN 1 ELSE 0 END) AS tests_positive,
+        SUM(CASE WHEN HIV_HTS_CLIENTS_TESTED_HIV_Y THEN 1 ELSE 0 END) AS hts_tested,
+        SUM(CASE WHEN HIV_HTS_CLIENT_HIV_POSITIVE_Y THEN 1 ELSE 0 END) AS hts_positive,
+        SUM(CASE WHEN HIV_NEW_CASES_M THEN 1 ELSE 0 END) AS new_cases,
+        SUM(CASE WHEN HIV_NEW_HIV_CASES_STARTED_ART_M THEN 1 ELSE 0 END) AS new_cases_on_art,
+        SUM(CASE WHEN HIV_ART_M THEN 1 ELSE 0 END) AS patients_on_art,
+        SUM(CASE WHEN HIV_VIRSUPP_M THEN 1 ELSE 0 END) AS virally_suppressed,
+        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_Y THEN 1 ELSE 0 END) AS syphilis_tested,
+        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_POSITIVE_Y THEN 1 ELSE 0 END) AS syphilis_positive
+      FROM hiv_patient_events
+      WHERE event_date > :#lastSyncTimestamp AND org_unit = 'DiszpKrYNg8'
+      GROUP BY TO_CHAR(event_date, 'YYYYMM')
+      ORDER BY period
+
+    groupBy:
+      dataSet: data_set
+      period: period
+      orgUnit: DiszpKrYNg8
+
+    dataValueMappings:
+      - name: HIV tests performed
+        dataElement: sX7pWYXIVIi
+        valueColumn: tests_performed
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: HIV tests positive
+        dataElement: O6wdXKIZ5L2
+        valueColumn: tests_positive
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: HTS clients tested for HIV
+        dataElement: dvVQWclej0K
+        valueColumn: hts_tested
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: HTS clients tested HIV positive
+        dataElement: yfXk1lKEOph
+        valueColumn: hts_positive
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: New HIV cases
+        dataElement: TDsHcpQ4E37
+        valueColumn: new_cases
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: New cases started ART
+        dataElement: r9RMOeS9qeH
+        valueColumn: new_cases_on_art
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Patients on ART
+        dataElement: mqIVTKwfWl7
+        valueColumn: patients_on_art
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Virally suppressed
+        dataElement: o8blexx4SAI
+        valueColumn: virally_suppressed
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Syphilis tested
+        dataElement: fJ1O3fG8zpW
+        valueColumn: syphilis_tested
+        categoryOptionCombo: HllvX50cXC0
+
+      - name: Syphilis positive
+        dataElement: EYa2F9KAI20
+        valueColumn: syphilis_positive
+        categoryOptionCombo: HllvX50cXC0
