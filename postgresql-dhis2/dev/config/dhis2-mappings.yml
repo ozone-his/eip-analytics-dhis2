@@ -3,19 +3,7 @@ reports:
     name: LIMS PCR test results - Facility A
     description: Aggregated PCR results for Facility A (set DHIS2 orgUnit UID below)
     dataSet: BfMAe6Itzgt
-    sql: |
-      SELECT
-        'BfMAe6Itzgt' AS data_set,
-        TO_CHAR(test_date, 'YYYYMM') AS period,
-        SUM(CASE WHEN test_result = 'positive' THEN test_count ELSE 0 END) AS positive_tests,
-        SUM(CASE WHEN test_result = 'negative' THEN test_count ELSE 0 END) AS negative_tests,
-        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'M' THEN test_count ELSE 0 END) AS positive_male,
-        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'F' THEN test_count ELSE 0 END) AS positive_female,
-        SUM(test_count) AS total_tests
-      FROM lims_test_results
-      WHERE test_date > :#lastSyncTimestamp AND facility_id = 'FACILITY_A'
-      GROUP BY TO_CHAR(test_date, 'YYYYMM')
-      ORDER BY period
+    sqlFile: queries/lims-pcr-facility-a.sql
 
     groupBy:
       dataSet: data_set
@@ -52,19 +40,7 @@ reports:
     name: LIMS PCR test results - Facility B
     description: Aggregated PCR results for Facility B (set DHIS2 orgUnit UID below)
     dataSet: BfMAe6Itzgt
-    sql: |
-      SELECT
-        'BfMAe6Itzgt' AS data_set,
-        TO_CHAR(test_date, 'YYYYMM') AS period,
-        SUM(CASE WHEN test_result = 'positive' THEN test_count ELSE 0 END) AS positive_tests,
-        SUM(CASE WHEN test_result = 'negative' THEN test_count ELSE 0 END) AS negative_tests,
-        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'M' THEN test_count ELSE 0 END) AS positive_male,
-        SUM(CASE WHEN test_result = 'positive' AND patient_gender = 'F' THEN test_count ELSE 0 END) AS positive_female,
-        SUM(test_count) AS total_tests
-      FROM lims_test_results
-      WHERE test_date > :#lastSyncTimestamp AND facility_id = 'FACILITY_B'
-      GROUP BY TO_CHAR(test_date, 'YYYYMM')
-      ORDER BY period
+    sqlFile: queries/lims-pcr-facility-b.sql
 
     groupBy:
       dataSet: data_set
@@ -101,24 +77,7 @@ reports:
     name: HIV Testing Results - Facility A
     description: HIV testing indicators aggregated from patient-level events for Facility A
     dataSet: BfMAe6Itzgt
-    sql: |
-      SELECT
-        'BfMAe6Itzgt' AS data_set,
-        TO_CHAR(event_date, 'YYYYMM') AS period,
-        SUM(CASE WHEN HIV_TEST_M THEN 1 ELSE 0 END) AS tests_performed,
-        SUM(CASE WHEN HIV_TEST_POS_M THEN 1 ELSE 0 END) AS tests_positive,
-        SUM(CASE WHEN HIV_HTS_CLIENTS_TESTED_HIV_Y THEN 1 ELSE 0 END) AS hts_tested,
-        SUM(CASE WHEN HIV_HTS_CLIENT_HIV_POSITIVE_Y THEN 1 ELSE 0 END) AS hts_positive,
-        SUM(CASE WHEN HIV_NEW_CASES_M THEN 1 ELSE 0 END) AS new_cases,
-        SUM(CASE WHEN HIV_NEW_HIV_CASES_STARTED_ART_M THEN 1 ELSE 0 END) AS new_cases_on_art,
-        SUM(CASE WHEN HIV_ART_M THEN 1 ELSE 0 END) AS patients_on_art,
-        SUM(CASE WHEN HIV_VIRSUPP_M THEN 1 ELSE 0 END) AS virally_suppressed,
-        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_Y THEN 1 ELSE 0 END) AS syphilis_tested,
-        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_POSITIVE_Y THEN 1 ELSE 0 END) AS syphilis_positive
-      FROM hiv_patient_events
-      WHERE event_date > :#lastSyncTimestamp AND org_unit = 'ImspTQPwCqd'
-      GROUP BY TO_CHAR(event_date, 'YYYYMM')
-      ORDER BY period
+    sqlFile: queries/hiv-testing-facility-a.sql
 
     groupBy:
       dataSet: data_set
@@ -180,24 +139,7 @@ reports:
     name: HIV Testing Results - Facility B
     description: HIV testing indicators aggregated from patient-level events for Facility B
     dataSet: BfMAe6Itzgt
-    sql: |
-      SELECT
-        'BfMAe6Itzgt' AS data_set,
-        TO_CHAR(event_date, 'YYYYMM') AS period,
-        SUM(CASE WHEN HIV_TEST_M THEN 1 ELSE 0 END) AS tests_performed,
-        SUM(CASE WHEN HIV_TEST_POS_M THEN 1 ELSE 0 END) AS tests_positive,
-        SUM(CASE WHEN HIV_HTS_CLIENTS_TESTED_HIV_Y THEN 1 ELSE 0 END) AS hts_tested,
-        SUM(CASE WHEN HIV_HTS_CLIENT_HIV_POSITIVE_Y THEN 1 ELSE 0 END) AS hts_positive,
-        SUM(CASE WHEN HIV_NEW_CASES_M THEN 1 ELSE 0 END) AS new_cases,
-        SUM(CASE WHEN HIV_NEW_HIV_CASES_STARTED_ART_M THEN 1 ELSE 0 END) AS new_cases_on_art,
-        SUM(CASE WHEN HIV_ART_M THEN 1 ELSE 0 END) AS patients_on_art,
-        SUM(CASE WHEN HIV_VIRSUPP_M THEN 1 ELSE 0 END) AS virally_suppressed,
-        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_Y THEN 1 ELSE 0 END) AS syphilis_tested,
-        SUM(CASE WHEN HIV_STI_CLIENTS_SYPHILIS_TESTED_POSITIVE_Y THEN 1 ELSE 0 END) AS syphilis_positive
-      FROM hiv_patient_events
-      WHERE event_date > :#lastSyncTimestamp AND org_unit = 'DiszpKrYNg8'
-      GROUP BY TO_CHAR(event_date, 'YYYYMM')
-      ORDER BY period
+    sqlFile: queries/hiv-testing-facility-b.sql
 
     groupBy:
       dataSet: data_set

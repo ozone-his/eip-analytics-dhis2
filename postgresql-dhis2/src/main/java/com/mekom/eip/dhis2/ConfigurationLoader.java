@@ -85,7 +85,23 @@ public class ConfigurationLoader {
             r.setName(resolveString(r.getName()));
             r.setDescription(resolveString(r.getDescription()));
             r.setDataSet(resolveString(r.getDataSet()));
-            r.setSql(resolveString(r.getSql()));
+            
+            // Load SQL from file if sqlFile is specified, otherwise use inline sql
+            String resolvedSqlFile = resolveString(r.getSqlFile());
+            if (resolvedSqlFile != null && !resolvedSqlFile.trim().isEmpty()) {
+                String sqlFromFile = loadSqlFromFile(resolvedSqlFile);
+                if (sqlFromFile != null) {
+                    r.setSql(sqlFromFile);
+                    log.info("Loaded SQL for report {} from file: {}", r.getId(), resolvedSqlFile);
+                } else {
+                    log.warn("Failed to load SQL from file {} for report {}. Falling back to inline SQL.", resolvedSqlFile, r.getId());
+                    r.setSql(resolveString(r.getSql()));
+                }
+            } else {
+                r.setSql(resolveString(r.getSql()));
+            }
+            
+            r.setSqlFile(resolvedSqlFile);  // Keep for reference
             resolvePlaceholders(r.getGroupBy());
             resolvePlaceholders(r.getDataValueMappings());
         } else if (node instanceof Dhis2MappingConfig.GroupByConfig) {
@@ -127,6 +143,52 @@ public class ConfigurationLoader {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * Loads SQL content from an external file.
+     * Supports both absolute and relative paths. Relative paths are resolved from:
+     * 1. The same directory as the config file
+     * 2. The working directory
+     */
+    private static String loadSqlFromFile(String sqlFile) {
+        try {
+            Path filePath = Paths.get(sqlFile);
+            
+            // If relative path, try resolving from config directory first
+            if (!filePath.isAbsolute()) {
+                // Try config directory
+                String externalPath = resolveExternalPath();
+                if (externalPath != null) {
+                    Path configDir = Paths.get(externalPath).getParent();
+                    if (configDir != null) {
+                        Path resolvedPath = configDir.resolve(filePath);
+                        if (Files.exists(resolvedPath) && Files.isRegularFile(resolvedPath)) {
+                            log.debug("Loading SQL from file relative to config: {}", resolvedPath.toAbsolutePath());
+                            return Files.readString(resolvedPath);
+                        }
+                    }
+                }
+                
+                // Try working directory
+                if (Files.exists(filePath) && Files.isRegularFile(filePath)) {
+                    log.debug("Loading SQL from file relative to working directory: {}", filePath.toAbsolutePath());
+                    return Files.readString(filePath);
+                }
+            } else {
+                // Absolute path
+                if (Files.exists(filePath) && Files.isRegularFile(filePath)) {
+                    log.debug("Loading SQL from absolute file path: {}", filePath.toAbsolutePath());
+                    return Files.readString(filePath);
+                }
+            }
+            
+            log.error("SQL file not found: {} (absolute: {})", sqlFile, filePath.toAbsolutePath());
+            return null;
+        } catch (Exception e) {
+            log.error("Error loading SQL from file {}: {}", sqlFile, e.getMessage(), e);
+            return null;
+        }
     }
 
     private static InputStream openConfigStream() {

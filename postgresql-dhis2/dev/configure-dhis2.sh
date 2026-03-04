@@ -158,65 +158,33 @@ import_metadata_file() {
     fi
 }
 
-# Function to make API calls
-api_call() {
-    local method=$1
-    local endpoint=$2
-    local data=$3
-    local file=$4  # Optional file path for file uploads
-    
-    local response
-    if [ -n "$file" ]; then
-        # File upload (for metadata import)
-        response=$(curl -s -w "\n%{http_code}" -X "$method" \
-            -H "Content-Type: application/json" \
-            -u "$DHIS2_USERNAME:$DHIS2_PASSWORD" \
-            --data-binary "@$file" \
-            "$DHIS2_URL/api/$endpoint")
-    elif [ -z "$data" ]; then
-        response=$(curl -s -w "\n%{http_code}" -X "$method" \
-            -H "Content-Type: application/json" \
-            -u "$DHIS2_USERNAME:$DHIS2_PASSWORD" \
-            "$DHIS2_URL/api/$endpoint")
-    else
-        response=$(curl -s -w "\n%{http_code}" -X "$method" \
-            -H "Content-Type: application/json" \
-            -u "$DHIS2_USERNAME:$DHIS2_PASSWORD" \
-            -d "$data" \
-            "$DHIS2_URL/api/$endpoint")
-    fi
-    
-    # Extract HTTP status code (last line)
-    local http_code=$(echo "$response" | tail -n1)
-    # Extract response body (all but last line)
-    local body=$(echo "$response" | sed '$d')
-    
-    # Return body, but check status code
-    if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-        echo "$body"
-        return 0
-    elif [ "$http_code" -eq 409 ]; then
-        # Conflict - resource might already exist, which is OK
-        echo "$body"
-        return 0
-    else
-        echo "Error: HTTP $http_code" >&2
-        echo "$body" >&2
-        return 1
-    fi
-}
-
-# Function to check if resource exists
-resource_exists() {
-    local endpoint=$1
-    local id=$2
-    # Suppress stderr for 404 errors (expected when resource doesn't exist)
-    local response=$(api_call "GET" "$endpoint/$id" 2>/dev/null)
-    echo "$response" | grep -q "\"id\":\"$id\"" && return 0 || return 1
-}
-
 # ===== IMPORT METADATA PACKAGES =====
 echo -e "${GREEN}=== Importing Metadata Packages ===${NC}"
+
+# Create Organisation Unit Levels if they don't exist
+echo -e "${YELLOW}Creating organisation unit levels...${NC}"
+
+# Level 1: Root level
+OU_LEVEL_1_RESPONSE=$(api_call "POST" "organisationUnitLevels" '{
+    "name": "Root",
+    "level": 1
+}' 2>&1)
+if echo "$OU_LEVEL_1_RESPONSE" | grep -q "error\|Error"; then
+    echo -e "  ${YELLOW}Level 1 may already exist or failed to create${NC}"
+else
+    echo -e "  ${GREEN}✓ Created or verified Level 1 (Root)${NC}"
+fi
+
+# Level 2: Facility level
+OU_LEVEL_2_RESPONSE=$(api_call "POST" "organisationUnitLevels" '{
+    "name": "Facility",
+    "level": 2
+}' 2>&1)
+if echo "$OU_LEVEL_2_RESPONSE" | grep -q "error\|Error"; then
+    echo -e "  ${YELLOW}Level 2 may already exist or failed to create${NC}"
+else
+    echo -e "  ${GREEN}✓ Created or verified Level 2 (Facility)${NC}"
+fi
 
 # Fetch facility-level UID (Level 2)
 echo -e "${YELLOW}Fetching organisation unit levels...${NC}"
@@ -290,7 +258,7 @@ echo ""
 # Create Organization Units
 echo -e "${YELLOW}Creating organization units for test facilities...${NC}"
 
-# Organization Unit 1: ImspTQPwCqd
+# Organization Unit 1: ImspTQPwCqd,
 if resource_exists "organisationUnits" "ImspTQPwCqd"; then
     echo -e "  Organization unit ${GREEN}ImspTQPwCqd${NC} already exists"
 else

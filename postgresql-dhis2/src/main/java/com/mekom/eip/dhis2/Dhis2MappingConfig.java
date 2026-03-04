@@ -25,6 +25,7 @@ public class Dhis2MappingConfig {
         private String description;
         private String dataSet;
         private String sql;
+        private String sqlFile;  // Path to external SQL file
         private GroupByConfig groupBy;
         private List<DataValueMapping> dataValueMappings;
 
@@ -66,6 +67,14 @@ public class Dhis2MappingConfig {
 
         public void setSql(String sql) {
             this.sql = sql;
+        }
+
+        public String getSqlFile() {
+            return sqlFile;
+        }
+
+        public void setSqlFile(String sqlFile) {
+            this.sqlFile = sqlFile;
         }
 
         public GroupByConfig getGroupBy() {
