@@ -1,4 +1,4 @@
-package com.mekom.eip.dhis2;
+package com.ozonehis.eip.dhis2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

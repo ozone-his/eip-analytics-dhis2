@@ -1,4 +1,4 @@
-package com.mekom.eip.dhis2;
+package com.ozonehis.eip.dhis2;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;

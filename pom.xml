@@ -10,7 +10,7 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mekom</groupId>
+    <groupId>com.ozonehis</groupId>
     <artifactId>eip-analytics-dhis2-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>

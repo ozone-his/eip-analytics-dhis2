@@ -18,7 +18,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.mekom.eip.dhis2" level="INFO"/>
+    <logger name="com.ozonehis.eip.dhis2" level="INFO"/>
     <logger name="org.apache.camel" level="INFO"/>
     <logger name="org.apache.camel.component.sql" level="DEBUG"/>
     <logger name="org.apache.camel.component.http" level="DEBUG"/>

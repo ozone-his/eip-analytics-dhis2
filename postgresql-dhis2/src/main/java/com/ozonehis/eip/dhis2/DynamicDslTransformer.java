@@ -1,4 +1,4 @@
-package com.mekom.eip.dhis2;
+package com.ozonehis.eip.dhis2;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
