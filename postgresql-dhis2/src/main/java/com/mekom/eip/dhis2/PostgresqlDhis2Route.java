@@ -52,8 +52,8 @@ public class PostgresqlDhis2Route extends RouteBuilder {
                     if (config != null && config.getReports() != null && !config.getReports().isEmpty()) {
                         exchange.getIn().setBody(config.getReports());
                     } else {
-                        // Fallback: single null entry to trigger legacy behavior
-                        exchange.getIn().setBody(java.util.Collections.singletonList(null));
+                        log.warn("No reports configured in dhis2-mappings.yml. Skipping sync.");
+                        exchange.getIn().setBody(java.util.Collections.emptyList());
                     }
                 })
                 .split(body())
@@ -86,20 +86,15 @@ public class PostgresqlDhis2Route extends RouteBuilder {
                         sqlParams.put("lastSyncTimestamp", lastSyncTimestamp);
                         exchange.getIn().setBody(sqlParams);
 
-                        String sqlQuery;
-                        if (report != null && report.getSql() != null && !report.getSql().trim().isEmpty()) {
-                            sqlQuery = report.getSql().trim();
-                            // Normalize multi-line SQL to single line for Camel SQL component
-                            // Replace newlines and multiple spaces with single space
-                            sqlQuery = sqlQuery.replaceAll("\\s+", " ").trim();
-                            log.info("Running report {} - {} (last sync: {})", reportId, reportName, lastSyncTime);
-                        } else {
-                            sqlQuery = getContext().resolvePropertyPlaceholders("{{eip.postgresql.query.sql}}");
-                            // Normalize the fallback SQL as well
-                            sqlQuery = sqlQuery.replaceAll("\\s+", " ").trim();
-                            log.info("Running default SQL from application properties (last sync: {})", lastSyncTime);
+                        if (report == null || report.getSql() == null || report.getSql().trim().isEmpty()) {
+                            log.warn("No SQL query for report '{}' (id: {}). Skipping.", reportName, reportId);
+                            exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
+                            return;
                         }
 
+                        // Normalize multi-line SQL to single line for Camel SQL component
+                        String sqlQuery = report.getSql().trim().replaceAll("\\s+", " ");
+                        log.info("Running report {} - {} (last sync: {})", reportId, reportName, lastSyncTime);
                         exchange.getIn().setHeader("CamelSqlQuery", sqlQuery);
                     })
                     .to("direct:execute-sql")

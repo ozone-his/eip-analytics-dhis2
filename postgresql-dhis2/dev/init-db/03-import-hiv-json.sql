@@ -23,34 +23,36 @@ INSERT INTO hiv_patient_events (
     HIV_STI_CLIENTS_SYPHILIS_TESTED_POSITIVE_Y
 ) VALUES
 -- January 2024
-('2024-01-05', 'ImspTQPwCqd', 28, 'Okello', 'Amina', 'Female', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE),
-('2024-01-10', 'ImspTQPwCqd', 35, 'Mwangi', 'Grace', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE),
-('2024-01-15', 'ImspTQPwCqd', 42, 'Njeri', 'Faith', 'Female', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE),
-('2024-01-20', 'ImspTQPwCqd', 26, 'Achieng', 'Mary', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
-('2024-01-08', 'ImspTQPwCqd', 31, 'Omondi', 'James', 'Male', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
-('2024-01-12', 'ImspTQPwCqd', 39, 'Kamau', 'Peter', 'Male', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE),
-('2024-01-18', 'ImspTQPwCqd', 44, 'Wanjiru', 'John', 'Male', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE),
-('2024-01-25', 'ImspTQPwCqd', 29, 'Otieno', 'Mark', 'Male', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE),
+--                                                                                  BOOL  BOOL  INT   INT              INT                       INT                 INT                          INT        INT      INT                           INT                              INT
+--                                                                         HFP_TEST  HFP_VL TEST_M TEST_POS_M  HTS_CLIENTS_TESTED_HIV_Y  HTS_CLIENT_HIV_POS_Y  NEW_CASES_M  NEW_HIV_CASES_STARTED_ART_M  ART_M  VIRSUPP_M  STI_SYPH_TESTED_Y  STI_SYPH_TESTED_POS_Y
+('2024-01-05', 'ImspTQPwCqd', 28, 'Okello',   'Amina',   'Female', TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 1, 1, 0),
+('2024-01-10', 'ImspTQPwCqd', 35, 'Mwangi',   'Grace',   'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 0, 1, 1),
+('2024-01-15', 'ImspTQPwCqd', 42, 'Njeri',    'Faith',   'Female', TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 1, 0, 0),
+('2024-01-20', 'ImspTQPwCqd', 26, 'Achieng',  'Mary',    'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 1, 0),
+('2024-01-08', 'ImspTQPwCqd', 31, 'Omondi',   'James',   'Male',   TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 0, 0),
+('2024-01-12', 'ImspTQPwCqd', 39, 'Kamau',    'Peter',   'Male',   TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 1, 1, 0),
+('2024-01-18', 'ImspTQPwCqd', 44, 'Wanjiru',  'John',    'Male',   TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 0, 0, 0),
+('2024-01-25', 'ImspTQPwCqd', 29, 'Otieno',   'Mark',    'Male',   TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 1, 0, 0),
 
 -- February 2024
-('2024-02-03', 'DiszpKrYNg8', 33, 'Wambui', 'Sarah', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
-('2024-02-08', 'DiszpKrYNg8', 27, 'Nyambura', 'Jane', 'Female', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE),
-('2024-02-14', 'DiszpKrYNg8', 38, 'Akinyi', 'Lucy', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
-('2024-02-20', 'DiszpKrYNg8', 30, 'Chebet', 'Rose', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE),
-('2024-02-05', 'DiszpKrYNg8', 36, 'Kipchoge', 'David', 'Male', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE),
-('2024-02-10', 'DiszpKrYNg8', 41, 'Mutua', 'Samuel', 'Male', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
-('2024-02-16', 'DiszpKrYNg8', 25, 'Odhiambo', 'Tom', 'Male', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE),
-('2024-02-22', 'DiszpKrYNg8', 34, 'Kariuki', 'Paul', 'Male', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE),
+('2024-02-03', 'DiszpKrYNg8', 33, 'Wambui',   'Sarah',   'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 1, 0),
+('2024-02-08', 'DiszpKrYNg8', 27, 'Nyambura', 'Jane',    'Female', TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 0, 0, 0),
+('2024-02-14', 'DiszpKrYNg8', 38, 'Akinyi',   'Lucy',    'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 1, 1),
+('2024-02-20', 'DiszpKrYNg8', 30, 'Chebet',   'Rose',    'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 0, 0, 0),
+('2024-02-05', 'DiszpKrYNg8', 36, 'Kipchoge', 'David',   'Male',   TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 1, 0, 0),
+('2024-02-10', 'DiszpKrYNg8', 41, 'Mutua',    'Samuel',  'Male',   TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 1, 0),
+('2024-02-16', 'DiszpKrYNg8', 25, 'Odhiambo', 'Tom',     'Male',   TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 0, 0, 0),
+('2024-02-22', 'DiszpKrYNg8', 34, 'Kariuki',  'Paul',    'Male',   TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 1, 1, 0),
 
 -- March 2024
-('2024-03-04', 'ImspTQPwCqd', 32, 'Wanjiku', 'Anne', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
-('2024-03-09', 'ImspTQPwCqd', 45, 'Juma', 'Michael', 'Male', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE),
-('2024-03-14', 'ImspTQPwCqd', 23, 'Awuor', 'Betty', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE),
-('2024-03-19', 'ImspTQPwCqd', 37, 'Maina', 'Robert', 'Male', TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE),
-('2024-03-06', 'DiszpKrYNg8', 29, 'Njoki', 'Esther', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
-('2024-03-12', 'DiszpKrYNg8', 40, 'Koech', 'Daniel', 'Male', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE),
-('2024-03-17', 'DiszpKrYNg8', 31, 'Adhiambo', 'Violet', 'Female', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
-('2024-03-24', 'DiszpKrYNg8', 47, 'Kimani', 'George', 'Male', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
+('2024-03-04', 'ImspTQPwCqd', 32, 'Wanjiku',  'Anne',    'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 1, 1),
+('2024-03-09', 'ImspTQPwCqd', 45, 'Juma',     'Michael', 'Male',   TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 0, 0, 0),
+('2024-03-14', 'ImspTQPwCqd', 23, 'Awuor',    'Betty',   'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 0, 1, 0),
+('2024-03-19', 'ImspTQPwCqd', 37, 'Maina',    'Robert',  'Male',   TRUE, TRUE,  1, 0,  1, 0, 0, 0, 1, 1, 0, 0),
+('2024-03-06', 'DiszpKrYNg8', 29, 'Njoki',    'Esther',  'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 1, 0),
+('2024-03-12', 'DiszpKrYNg8', 40, 'Koech',    'Daniel',  'Male',   TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 0, 0, 0),
+('2024-03-17', 'DiszpKrYNg8', 31, 'Adhiambo', 'Violet',  'Female', TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 0, 0),
+('2024-03-24', 'DiszpKrYNg8', 47, 'Kimani',   'George',  'Male',   TRUE, TRUE,  1, 1,  1, 1, 1, 1, 1, 1, 0, 0);
 
 -- Display testing summary by period and facility
 SELECT 

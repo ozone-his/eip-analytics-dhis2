@@ -75,7 +75,9 @@ public class ConfigurationLoader {
             return;
         }
 
-        if (node instanceof Map<?, ?>) {
+        if (node instanceof Dhis2MappingConfig) {
+            resolvePlaceholders(((Dhis2MappingConfig) node).getReports());
+        } else if (node instanceof Map<?, ?>) {
             ((Map<?, ?>) node).forEach((k, v) -> resolvePlaceholders(v));
         } else if (node instanceof List<?>) {
             ((List<?>) node).forEach(ConfigurationLoader::resolvePlaceholders);

@@ -169,11 +169,16 @@ public class SyncStateService {
         Map<String, Object> state = allStates.getOrDefault(reportId, new HashMap<>());
         state.put("report_id", reportId);
         state.put("report_name", reportName);
-        state.put("last_sync_timestamp", Instant.now().toString());
         state.put("sync_status", SyncStatus.SUCCESS.getValue());
         state.put("records_synced", recordsCount);
         state.put("error_message", null);
         state.put("updated_at", Instant.now().toString());
+
+        // Only advance the sync timestamp when records were actually processed;
+        // if nothing matched, keep the previous timestamp so the next run re-queries the same window
+        if (recordsCount > 0) {
+            state.put("last_sync_timestamp", Instant.now().toString());
+        }
         
         if (!state.containsKey("created_at")) {
             state.put("created_at", Instant.now().toString());
