@@ -165,6 +165,26 @@ public class PostgresqlDhis2Route extends RouteBuilder {
                     .log("Response from DHIS2: ${body}")
                 .doCatch(Exception.class)
                     .process(exchange -> {
+                        Exception ex = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+                        // Log the full exception chain immediately so the reason is visible in logs
+                        // before the message is handed off to the async DLQ consumer
+                        StringBuilder errMsg = new StringBuilder("DHIS2 send failed");
+                        if (ex != null) {
+                            Throwable cause = ex;
+                            while (cause != null) {
+                                errMsg.append(" -> ").append(cause.getMessage());
+                                cause = cause.getCause();
+                            }
+                        }
+                        log.error("DHIS2 POST error: {}", errMsg);
+
+                        // Pass the report ID as a JMS header so the DLQ consumer can attribute the failure
+                        String reportId = (String) exchange.getProperty("SYNC_REPORT_ID");
+                        if (reportId != null) {
+                            exchange.getIn().setHeader("SYNC_REPORT_ID", reportId);
+                        }
+
+                        // Serialize body to string for JMS transport
                         Object body = exchange.getIn().getBody();
                         if (body != null && !(body instanceof String)) {
                             try {
@@ -194,7 +214,11 @@ public class PostgresqlDhis2Route extends RouteBuilder {
                     Integer redeliveryCounter = exchange.getIn().getHeader(Exchange.REDELIVERY_COUNTER, Integer.class);
                     int redeliveryCount = redeliveryCounter == null ? 0 : redeliveryCounter;
                     
-                    String reportId = (String) exchange.getProperty("SYNC_REPORT_ID");
+                    // Report ID is passed as a JMS header from the send route
+                    String reportId = exchange.getIn().getHeader("SYNC_REPORT_ID", String.class);
+                    if (reportId == null) {
+                        reportId = (String) exchange.getProperty("SYNC_REPORT_ID");
+                    }
                     if (reportId == null) {
                         reportId = "unknown";
                     }

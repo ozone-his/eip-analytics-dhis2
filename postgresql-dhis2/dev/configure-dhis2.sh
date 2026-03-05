@@ -122,7 +122,7 @@ import_metadata_file() {
     
     # Replace <OU_LEVEL_FACILITY_UID> with actual facility level UID
     if grep -q "<OU_LEVEL_FACILITY_UID>" "$temp_file"; then
-        sed -i '' "s/<OU_LEVEL_FACILITY_UID>/$ou_level_facility_uid/g" "$temp_file"
+        sed "s/<OU_LEVEL_FACILITY_UID>/$ou_level_facility_uid/g" "$temp_file" > "${temp_file}.tmp" && mv "${temp_file}.tmp" "$temp_file"
         echo -e "  ${GREEN}✓ Replaced OU_LEVEL_FACILITY_UID with: $ou_level_facility_uid${NC}"
     else
         echo -e "  ${YELLOW}No placeholder found${NC}"
@@ -203,7 +203,7 @@ echo -e "${GREEN}Facility-level UID: $FACILITY_LEVEL_UID${NC}"
 echo ""
 
 # Import common library metadata (GEN_LIB)
-GEN_LIB_FILE="$SCRIPT_DIR/data/GEN_LIB_2.0.0_DHIS2.41/GEN_LIB_COMPLETE_2.0.0_DHIS2.41.json"
+GEN_LIB_FILE="$SCRIPT_DIR/data/GEN_LIB_2.0.0_DHIS2.41/GEN_LIB_COMPLETE_2.0.0_DHIS2.41/GEN_LIB_COMPLETE_2.0.0_DHIS2.41.json"
 if [ -f "$GEN_LIB_FILE" ]; then
     import_metadata_file "$GEN_LIB_FILE" "$FACILITY_LEVEL_UID" || true
     echo ""
@@ -307,6 +307,43 @@ else
 fi
 
 echo -e "${GREEN}=== Organization Hierarchy Created ===${NC}"
+echo ""
+
+# ===== ASSIGN ORG UNITS TO HIV PREVENTION DATASET =====
+echo -e "${YELLOW}Assigning organization units to HIV Prevention dataset (GqKaojXhPdg)...${NC}"
+
+if resource_exists "dataSets" "GqKaojXhPdg"; then
+    HIV_DS=$(api_call "GET" "dataSets/GqKaojXhPdg.json?fields=:all" 2>/dev/null)
+    if [ -n "$HIV_DS" ]; then
+        UPDATED_HIV_DS=$(python3 << PYTHON_EOF
+import json, sys
+try:
+    ds = json.loads('''$HIV_DS''')
+    existing = {ou['id'] for ou in ds.get('organisationUnits', [])}
+    for uid in ('ImspTQPwCqd', 'DiszpKrYNg8'):
+        if uid not in existing:
+            ds.setdefault('organisationUnits', []).append({'id': uid})
+    print(json.dumps(ds))
+except Exception as e:
+    print(f'Error: {e}', file=sys.stderr)
+    sys.exit(1)
+PYTHON_EOF
+)
+        if [ $? -eq 0 ] && [ -n "$UPDATED_HIV_DS" ]; then
+            if api_call "PUT" "dataSets/GqKaojXhPdg" "$UPDATED_HIV_DS" > /dev/null 2>&1; then
+                echo -e "  ${GREEN}✓ ImspTQPwCqd and DiszpKrYNg8 assigned to GqKaojXhPdg${NC}"
+            else
+                echo -e "  ${RED}Warning: Could not assign org units to HIV dataset GqKaojXhPdg${NC}"
+            fi
+        else
+            echo -e "  ${RED}Failed to prepare HIV dataset update${NC}"
+        fi
+    else
+        echo -e "  ${YELLOW}Could not fetch HIV dataset GqKaojXhPdg${NC}"
+    fi
+else
+    echo -e "  ${YELLOW}HIV Prevention dataset GqKaojXhPdg not found – re-run after metadata import${NC}"
+fi
 echo ""
 
 # Function to configure admin user org unit access

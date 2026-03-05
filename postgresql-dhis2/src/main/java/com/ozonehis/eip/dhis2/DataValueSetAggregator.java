@@ -7,7 +7,6 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -126,7 +125,9 @@ public class DataValueSetAggregator implements Processor {
             dataValueSet.put("dataSet", dataSet);
             dataValueSet.put("period", period);
             dataValueSet.put("orgUnit", orgUnit);
-            dataValueSet.put("completeDate", LocalDate.now().toString());
+            // Note: do NOT include completeDate – sending it triggers a dataset-completion
+            // registration in DHIS2, which fails with 409 when only a subset of the
+            // dataset's data elements are being submitted.
 
             // Build dataValues list using configuration mappings
             List<Map<String, Object>> dataValues = new ArrayList<>();
@@ -229,7 +230,7 @@ public class DataValueSetAggregator implements Processor {
             dataValueSet.put("dataSet", dataSet);
             dataValueSet.put("period", period);
             dataValueSet.put("orgUnit", orgUnit);
-            dataValueSet.put("completeDate", LocalDate.now().toString());
+            // completeDate omitted intentionally - see aggregateUsingConfiguration comment
 
             // Build dataValues list
             List<Map<String, Object>> dataValues = new ArrayList<>();

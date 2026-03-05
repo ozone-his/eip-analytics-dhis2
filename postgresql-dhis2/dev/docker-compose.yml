@@ -107,7 +107,7 @@ services:
     ports:
       - "${EIP_CLIENT_PORT:-8085}:8080"
     volumes:
-      - ../target/postgresql-dhis2-${EIP_CLIENT_VERSION:-1.0.0-SNAPSHOT}.jar:/eip-client/routes/postgresql-dhis2-${EIP_CLIENT_VERSION:-1.0.0-SNAPSHOT}.jar:ro
+      - ../target/eip-analytics-dhis2-${EIP_CLIENT_VERSION:-1.0.0-SNAPSHOT}.jar:/eip-client/routes/eip-analytics-dhis2.jar:ro
       - ${DHIS2_MAPPING_FILE_HOST:-./config/dhis2-mappings.yml}:${EIP_DHIS2_MAPPING_FILE:-/eip-client/config/dhis2-mappings.yml}:ro
       - ${DHIS2_QUERIES_DIR_HOST:-./config/queries}:/eip-client/config/queries:ro
       - ${EIP_HOME_DIR_HOST:-eip_home}:/eip-home
