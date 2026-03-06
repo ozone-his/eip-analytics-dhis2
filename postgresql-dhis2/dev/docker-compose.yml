@@ -57,6 +57,7 @@ services:
       - "traefik.http.services.${DHIS2_TRAEFIK_SERVICE:-dhis2}.loadbalancer.server.port=${DHIS2_TRAEFIK_SERVICE_PORT:-8080}"
     networks:
       - eip-network
+      - web
 
   dhis2-db:
     container_name: eip-dhis2-db
@@ -145,3 +146,5 @@ volumes:
 networks:
   eip-network:
     driver: bridge
+  web:
+    external: true
