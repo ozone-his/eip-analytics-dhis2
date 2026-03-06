@@ -50,6 +50,11 @@ services:
       timeout: 10s
       retries: 10
       start_period: 120s
+    labels:
+      - "traefik.enable=${DHIS2_TRAEFIK_ENABLED:-true}"
+      - "traefik.http.routers.${DHIS2_TRAEFIK_ROUTER:-dhis2}.rule=Host(`${DHIS2_TRAEFIK_HOST:-dhis2.localhost}`)"
+      - "traefik.http.routers.${DHIS2_TRAEFIK_ROUTER:-dhis2}.entrypoints=${DHIS2_TRAEFIK_ENTRYPOINTS:-websecure}"
+      - "traefik.http.services.${DHIS2_TRAEFIK_SERVICE:-dhis2}.loadbalancer.server.port=${DHIS2_TRAEFIK_SERVICE_PORT:-8080}"
     networks:
       - eip-network
 
