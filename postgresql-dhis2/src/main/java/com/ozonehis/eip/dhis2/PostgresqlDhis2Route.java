@@ -85,6 +85,20 @@ public class PostgresqlDhis2Route extends RouteBuilder {
                         // Camel will substitute :#paramName with values from this map
                         java.util.Map<String, Object> sqlParams = new java.util.HashMap<>();
                         sqlParams.put("lastSyncTimestamp", lastSyncTimestamp);
+
+                        // Merge in any extra parameters declared in the report definition
+                        // These allow the YAML config to supply extra SQL bind variables such
+                        // as date ranges, age filters, etc., e.g.:
+                        //   parameters:
+                        //     startDate: 2024-01-01
+                        //     minAge: 15
+                        // which the SQL can use as: WHERE test_date >= :#startDate
+                        if (report != null && report.getParameters() != null) {
+                            sqlParams.putAll(report.getParameters());
+                            log.debug("Merged {} report parameters into SQL params: {}",
+                                    report.getParameters().size(), report.getParameters().keySet());
+                        }
+
                         exchange.getIn().setBody(sqlParams);
 
                         if (report == null || report.getSql() == null || report.getSql().trim().isEmpty()) {

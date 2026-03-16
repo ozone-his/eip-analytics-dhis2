@@ -5,6 +5,14 @@ reports:
     dataSet: GqKaojXhPdg
     sqlFile: queries/hiv-testing-facility-a.sql
 
+    # Extra parameters injected as SQL bind variables (:#paramName syntax).
+    # Values support ${ENV_VAR} and ${system.property} placeholders.
+    parameters:
+      startDate: ${HIV_REPORT_START_DATE:2024-01-01}
+      endDate: ${HIV_REPORT_END_DATE:2024-12-31}
+      minAge: ${HIV_REPORT_MIN_AGE:15}
+      maxAge: ${HIV_REPORT_MAX_AGE:49}
+
     groupBy:
       dataSet: data_set
       period: period
@@ -26,6 +34,13 @@ reports:
     description: HIV testing indicators aggregated from patient-level events for Facility B
     dataSet: GqKaojXhPdg
     sqlFile: queries/hiv-testing-facility-b.sql
+
+    # Facility B uses the same parameter set — override via env vars per deployment
+    parameters:
+      startDate: ${HIV_REPORT_START_DATE:2024-01-01}
+      endDate: ${HIV_REPORT_END_DATE:2024-12-31}
+      minAge: ${HIV_REPORT_MIN_AGE:15}
+      maxAge: ${HIV_REPORT_MAX_AGE:49}
 
     groupBy:
       dataSet: data_set

@@ -104,6 +104,12 @@ public class ConfigurationLoader {
             }
             
             r.setSqlFile(resolvedSqlFile);  // Keep for reference
+
+            // Resolve placeholders in each parameter value
+            if (r.getParameters() != null) {
+                r.getParameters().replaceAll((k, v) -> resolveString(v));
+            }
+
             resolvePlaceholders(r.getGroupBy());
             resolvePlaceholders(r.getDataValueMappings());
         } else if (node instanceof Dhis2MappingConfig.GroupByConfig) {
