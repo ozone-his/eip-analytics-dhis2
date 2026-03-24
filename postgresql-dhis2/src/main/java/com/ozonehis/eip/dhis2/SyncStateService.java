@@ -30,12 +30,32 @@ public class SyncStateService {
     @Value("${eip.home:/eip-home}")
     private String eipHome;
     
+    @Value("${eip.sync.default-start:2020-01-01T00:00:00Z}")
+    private String configuredDefaultSyncStart;
+    
     private ObjectMapper objectMapper;
     private File syncStateFile;
+    private Instant defaultSyncStart;
     
     public SyncStateService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    }
+    
+    private Instant getDefaultSyncStart() {
+        if (defaultSyncStart != null) {
+            return defaultSyncStart;
+        }
+        
+        String configuredValue = configuredDefaultSyncStart != null ? configuredDefaultSyncStart.trim() : "";
+        try {
+            defaultSyncStart = Instant.parse(configuredValue);
+        } catch (Exception e) {
+            defaultSyncStart = Instant.parse("2020-01-01T00:00:00Z");
+            log.warn("Invalid eip.sync.default-start value '{}'. Using fallback {}",
+                    configuredValue, defaultSyncStart);
+        }
+        return defaultSyncStart;
     }
     
     /**
@@ -138,7 +158,7 @@ public class SyncStateService {
         log.info("No sync state found for report: {}. Starting fresh sync.", reportId);
         Map<String, Object> freshState = new HashMap<>();
         freshState.put("report_id", reportId);
-        freshState.put("last_sync_timestamp", null);
+        freshState.put("last_sync_timestamp", getDefaultSyncStart().toString());
         freshState.put("sync_status", SyncStatus.PENDING.getValue());
         return freshState;
     }
@@ -175,11 +195,9 @@ public class SyncStateService {
         state.put("error_message", null);
         state.put("updated_at", Instant.now().toString());
 
-        // Only advance the sync timestamp when records were actually processed;
-        // if nothing matched, keep the previous timestamp so the next run re-queries the same window
-        if (recordsCount > 0) {
-            state.put("last_sync_timestamp", Instant.now().toString());
-        }
+        // Advance checkpoint on every successful run (including zero-row runs)
+        // so incremental queries don't stay pinned to an old/null timestamp.
+        state.put("last_sync_timestamp", Instant.now().toString());
         
         if (!state.containsKey("created_at")) {
             state.put("created_at", Instant.now().toString());
@@ -220,16 +238,20 @@ public class SyncStateService {
         Map<String, Object> state = getLastSyncState(reportId);
         
         if (state.get("last_sync_timestamp") == null) {
-            log.debug("No previous successful sync found for report: {}", reportId);
-            return null;
+            Instant defaultStart = getDefaultSyncStart();
+            log.debug("No previous sync timestamp for report {}. Using default start {}",
+                    reportId, defaultStart);
+            return defaultStart;
         }
         
         try {
             String timestamp = state.get("last_sync_timestamp").toString();
             return Instant.parse(timestamp);
         } catch (Exception e) {
-            log.warn("Error parsing last sync timestamp for report {}: {}", reportId, e.getMessage());
-            return null;
+            Instant defaultStart = getDefaultSyncStart();
+            log.warn("Error parsing last sync timestamp for report {}: {}. Using default start {}",
+                    reportId, e.getMessage(), defaultStart);
+            return defaultStart;
         }
     }
     
@@ -241,7 +263,7 @@ public class SyncStateService {
         
         Map<String, Object> state = allStates.getOrDefault(reportId, new HashMap<>());
         state.put("report_id", reportId);
-        state.put("last_sync_timestamp", null);
+        state.put("last_sync_timestamp", getDefaultSyncStart().toString());
         state.put("sync_status", SyncStatus.PENDING.getValue());
         state.put("records_synced", 0);
         state.put("error_message", null);
